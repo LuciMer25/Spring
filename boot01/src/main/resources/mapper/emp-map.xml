@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yedam.app.emp.mapper.EmpMapper">
+<!-- mybaits에서 사용하는 필드는 lombok(getter, setter)  -->
+	<!-- 전체조회 -->
+	<select id="selectEmpAll" resultType="EmpVO">
+		SELECT empid, 
+		       empname, 
+		       mgr, 
+		       sal, 
+		       deptid, 
+		       hire_date
+		FROM emp
+		ORDER BY empid
+	</select>
+	<!-- 단건조회 -->
+	<select id="selectEmpInfo" resultType="EmpVO">
+		SELECT empid, 
+		       empname, 
+		       mgr, 
+		       sal, 
+		       deptid, 
+		       hire_date
+		FROM emp
+		WHERE empid = #{empid}
+		<!-- parameter = 필드값, 아이디에 연결된 매개변수에 필드를 가져옴  -->
+		<!-- 
+			#{} : PreparedStatement => 데이터 타입에 따른 작업
+			${} : Statement         => 데이터 타입을 무시 (다중 조건을 하는경우 편리)
+		 -->
+	</select>
+	<!-- 등록 -->
+	<insert id="insertEmpInfo" parameterType="EmpVO">
+		<!-- selectKey = insert / update 두개에만 쓸 수 있음 -->
+		<!-- keyProperty = parameter 객체의 필드값?  -->
+		<selectKey keyProperty="empid"
+	 			   resultType="Integer"
+	 			   order="BEFORE">
+			SELECT NVL(MAX(empid), 0) + 1
+			FROM emp
+		</selectKey>
+	
+	<!-- insert, update, delete는 resultType을 잘 사용하지 않음  -->
+		INSERT INTO	emp
+					(
+						empid
+						,empname
+						,mgr
+						,sal
+						<!-- dynamic sql -->
+						<!-- if 조건은 값이 true 일떄만 들어감 false일 떄는 생략 -->
+						<!-- 연동하는 부분에도 같은 조건으로 진행 -->
+						<if test="deptid > 0">
+						,deptid
+						</if>
+						,hire_date
+					)
+				VALUES
+					(	
+						<!-- emp_seq.NEXTVAL -->
+						#{empid}
+						,#{empname}
+						,#{mgr}
+						,#{sal}
+						<if test="deptid > 0">
+						,#{deptid}
+						</if>
+						<!-- when test="조건식" -->
+						<!-- choose를 사용할떄는 대응되는 값에서 사용 
+						어떠한 경우에도 값이 존재하기 떄문에 아래에 사용 -->
+						<!-- 사용자가 값을 넘겨주지 않으면 sysdate -->
+						<choose>
+							<when test="hiredate != null">
+						,#{hiredate}											
+							</when>
+							<otherwise>
+								,sysdate
+							</otherwise>
+						</choose>
+					)
+	</insert>				
+	
+	<!-- 수정 -->
+	<!-- 매개변수가 2개 이상일떄 parameterType 생략 (하나만 가능) -->
+	<update id="updateEmpInfo">
+	  UPDATE emp
+      SET empname = #{emp.empname}
+         ,sal = #{emp.sal}
+         ,mgr = #{emp.mgr}
+         ,deptid = #{emp.deptid}
+      WHERE empid = #{empid}
+	</update>
+	
+	<!-- 삭제 -->
+	<delete id="deleteEmpInfo" parameterType="int">
+		DELETE FROM emp
+		WHERE empid = #{empid}
+	</delete>
+		
+	
+</mapper>
