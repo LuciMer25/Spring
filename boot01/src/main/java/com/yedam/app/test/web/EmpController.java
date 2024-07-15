@@ -1,16 +1,20 @@
 package com.yedam.app.test.web;
 
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.yedam.app.emp.service.EmpService;
 import com.yedam.app.emp.service.EmpVO;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -18,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Controller // 사용자의 요청(endPoint)에 대한 처리를 정
 public class EmpController {
 	//해당 컨트롤러에서 서비스를 추가
-	//autowirde
+	@Autowired
 	 EmpService empService;
 	 
 	 // GET : 조회, 빈페이지
@@ -36,6 +40,9 @@ public class EmpController {
 		 model.addAttribute("empList", list);
 		 //3) 데이터를 출력할 페이지 결정
 		return "emp/list";
+		// classpath:/templates/ emp/list .html
+		// prefix		          return   subfix
+		// =>  classpath:/templates/emp/list.html
  }
 	 
 	 //단건조회
@@ -70,10 +77,41 @@ public class EmpController {
 		 return url;
 	 }
 	 	
-	 //수정 - 페이지
+	 //수정 - 페이지 => 단건조회 
+	 @GetMapping("empUpdate")
+	 public String empUpdateForm(@RequestParam Integer empid,
+			 						Model model) {
+		 EmpVO empVO = new EmpVO();
+		 empVO.setEmpid(empid);
+		 
+		 EmpVO findVO = empService.empInfo(empVO);
+		 model.addAttribute("empInfo", findVO);
+		 
+		 return "emp/update";
+	 }
 	 
 	 //수정 - 처리(연산, AJAX => (QueryString)
-	 //수정 - 처리(연산, AJAX => Json)
+	 @PostMapping("empUdate")
+	 @ResponseBody // => AJAX 
+	 public Map<String, Object> empUpateAJAXQUERYSTRING(EmpVO empVO){
+		 return empService.empUpdate(empVO);
+	 }
+	 
+	 
+	 //수정 - 처리(연산, AJAX => JSON : @RequestBody)
+	 //AJAX가 항상 JSON을 요구하는것은 아님
+//	 @PostMapping("empUdate")
+	 @ResponseBody // => AJAX 
+	 public Map<String, Object> empUpateAJAXJSON(@RequestBody EmpVO empVO){
+		 return empService.empUpdate(empVO);
+	 }
+	 
 	 //삭제 - 처리
+	 // 여러개의 값 = post, 등록 수정은 AJAX를 주로 사용, 
+	 @GetMapping("empDelete")
+	 public String empDelete(EmpVO empVO) {
+		 empService.empDelete(empVO);
+		 return "redirect:empList";
+	 }
 	 
  }

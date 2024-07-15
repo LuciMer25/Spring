@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yedam.app.dept.mapper.DeptMapper">
+
+
+	<select id="selectDeptAll" resultType="DeptVO">
+		SELECT deptno, 
+		       dname, 
+		       loc,
+		       hirde_date
+		FROM dept
+		ORDER BY deptno
+	</select>
+	<!-- 단건조회 -->
+	<select id="selectDeptInfo" resultType="DeptVO">
+		SELECT deptno, 
+		       dname, 
+		       loc,
+		       hire_date     
+		FROM dept
+		WHERE deptno = #{deptno}
+	</select>
+	
+	<insert id="insertDeptInfo" parameterType="DeptVO">
+		
+		<selectKey keyProperty="deptno"
+	 			   resultType="Integer"
+	 			   order="BEFORE">
+			SELECT NVL(MAX(deptno), 0) + 1
+			FROM dept
+		</selectKey>
+	
+	
+		INSERT INTO	dept
+					(
+						deptno
+						,dname
+						,loc
+						<if test="deptno > 0">
+						,deptno
+						</if>
+						,hire_date
+						
+					)
+				VALUES
+					(	
+					
+						#{deptno}
+						,#{dname}
+						,#{loc}
+						<if test="deptno > 0">
+						,#{deptno}
+						</if>
+					
+						<choose>
+							<when test="hiredate != null">
+						,#{hiredate}								
+							</when>
+							<otherwise>
+								,sysdate
+							</otherwise>
+						</choose>
+					)
+	</insert>				
+	
+
+	<update id="updateDeptInfo">
+	  UPDATE dept
+      SET dname = #{dept.dname}
+         ,loc = #{dept.loc}
+      WHERE deptno = #{deptno}
+	</update>
+	
+	
+	<delete id="deleteDeptInfo" parameterType="int">
+		DELETE FROM dept
+		WHERE deptno = #{deptno}
+	</delete>
+	
+</mapper>
