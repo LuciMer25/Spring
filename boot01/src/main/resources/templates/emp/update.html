@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.js" integrity="sha512-+k1pnlgt4F1H8L7t3z95o3/KO+o78INEcXTbnoJQ/F2VqDVhWoaiVml/OEHv9HsVgxUaVW+IbiZPUJQfF/YxZw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<title>Insert title here</title>
+</head>
+<body>
+<h3>사원 정보 수정</h3>
+	<form name="updateForm" th:object="${empInfo}" >
+		<div>
+			<label>사원번호</label>
+			<input type="text" th:field="*{empid}" readonly>
+		</div>
+		<div>
+			<label>이름</label>
+			<input type="text" th:field="*{empname}">
+		</div>
+		<div>
+			<label>상사번호</label>
+			<input type="number" th:field="*{mgr}">
+		</div>
+		<div>
+			<label>급여</label>
+			<input type="number" th:field="*{sal}">
+		</div>
+		<div>
+			<label>부서번호</label>
+			<input type="number" th:field="*{deptid}">
+		</div>
+		<div>
+			<label>입사일자</label>
+			<input type="date" th:field="*{hiredate}">
+		</div>	
+		<div>
+			<button type="button" id="updateBtn">저장</button>
+		</div>
+	</form>
+</body>
+<script>
+	$('#updateBtn').on('click', updateAjax);
+	
+	function updateAjax(){
+		// 1) 유효성 체크
+		if(validationCheck() == false) return;
+		
+		// 2) 서버에 보낼 데이터 정리
+		let dataObj = getEmpObj();
+		console.log(dataObj);
+		
+		// 3) AJAX => @ResponseBody
+		$.ajax('empUpdate',{
+			type : 'post', // 통신할 떄 method : get, post, put, delete
+			// => 커맨드객체, @RequestParam
+			data : dataObj, // 기본 객체타입, 자등으로 QueryString 변환
+			// => @RequestBody
+			contentType : 'application/json',
+			data : JSON.stringify(dataObj)
+		})
+		.done( result => {
+			console.log(result);
+		})
+		.fail(err => console.log(err));
+	}
+	
+	function validationCheck(){
+		let ename = $('[name = "empname"]');
+		if( ename.val() == ''){
+			alert('이름은 필수 값입니다.');
+			ename.focus();
+			return false;
+		}
+		
+		let sal = $('[sal = "sal"]');
+		if( sal.val() < 1000 || sal.val() > 99999){
+			alert('급여의 범위는 1,000 ~ 99,9999 입니다.')
+			sal.focus();
+			return false;
+		}
+	
+		return true;
+	}
+	
+	function getEmpObj(){
+		let formAry = $('form[name="updateForm"]').serializeArray();
+		// [ { name: 'empid', value : '209'},
+		//    { name : 'empname', value : 'Hong'}, ... ]
+		// => javascropt 에선 FormData
+		console.log(formAry);
+		
+		let formObj = {};
+		$.each(formAry, function(idx, input) {
+			// input = { name : 'empid', value : '209' }
+			formObj[input.name] = input.value;
+			// formObj['empid'] = '209';
+		});
+		// { empid : 209, empname : 'Hong', ... }
+		return formObj;		
+		}
+</script>
+</html>

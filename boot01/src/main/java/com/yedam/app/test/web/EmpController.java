@@ -51,12 +51,15 @@ public class EmpController {
 		 EmpVO findVO = empService.empInfo(empVO);
 		 model.addAttribute("empInfo", findVO);
 		 return "emp/info";
+		 // classpath:/templates/emp/info.html
+		 // classpath = src/main/resources ? 
 	 }
 	 
 	 //등록 - 페이지
 	 @GetMapping("empInsert")
 	 public String empInsertForm() {
 		 return "emp/insert";
+		 //classpath:/templates/emp/insert.html
 	 }
 	 
 	 //등록 - 처리(연산, submit) 
@@ -91,7 +94,7 @@ public class EmpController {
 	 }
 	 
 	 //수정 - 처리(연산, AJAX => (QueryString)
-	 @PostMapping("empUdate")
+	 //@PostMapping("empUpdate")
 	 @ResponseBody // => AJAX 
 	 public Map<String, Object> empUpateAJAXQUERYSTRING(EmpVO empVO){
 		 return empService.empUpdate(empVO);
@@ -100,7 +103,7 @@ public class EmpController {
 	 
 	 //수정 - 처리(연산, AJAX => JSON : @RequestBody)
 	 //AJAX가 항상 JSON을 요구하는것은 아님
-//	 @PostMapping("empUdate")
+	 @PostMapping("empUpdate")
 	 @ResponseBody // => AJAX 
 	 public Map<String, Object> empUpateAJAXJSON(@RequestBody EmpVO empVO){
 		 return empService.empUpdate(empVO);

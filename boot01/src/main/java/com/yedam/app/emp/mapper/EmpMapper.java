@@ -15,7 +15,7 @@ public interface EmpMapper {
 	// 등록
 	public int insertEmpInfo(EmpVO empVO);
 	// 수정
-	public int updateEmpInfo(@Param("") int empId,
+	public int updateEmpInfo(@Param("empid") int empId,
 							 @Param("emp") EmpVO empVO);
 	// 삭제
 	public int deleteEmpInfo(int empId);

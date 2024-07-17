@@ -2,6 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.yedam.app.emp.mapper.EmpMapper">
 <!-- mybaits에서 사용하는 필드는 lombok(getter, setter)  -->
+
+
 	<!-- 전체조회 -->
 	<select id="selectEmpAll" resultType="EmpVO">
 		SELECT empid, 
@@ -11,6 +13,11 @@
 		       deptid, 
 		       hire_date
 		FROM emp
+		<where>
+			<if test="empname != null and !empname.equals('')">
+			AND empname = #{emp.empname}
+			</if>
+		</where>
 		ORDER BY empid
 	</select>
 	<!-- 단건조회 -->
@@ -84,11 +91,15 @@
 	<!-- 매개변수가 2개 이상일떄 parameterType 생략 (하나만 가능) -->
 	<update id="updateEmpInfo">
 	  UPDATE emp
-      SET empname = #{emp.empname}
-         ,sal = #{emp.sal}
-         ,mgr = #{emp.mgr}
-         ,deptid = #{emp.deptid}
-      WHERE empid = #{empid}
+      <set> 
+      	sal = #{emp.sal}
+      	, mgr = #{emp.mgr}
+      	, deptid = #{emp.deptid}
+      	<if test="empname != null and !empname.equals('')">
+      	, empname = #{emp.empname}
+      	</if>
+      </set>
+       WHERE empid = #{empid}
 	</update>
 	
 	<!-- 삭제 -->
